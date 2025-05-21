@@ -31,6 +31,7 @@ public class TcpClient {
                 System.out.println("3 - Alterar Cadastro");
 
                 System.out.println("4 - Apagar Cadastro");
+                System.out.println("5 - Logout");
 
                 System.out.println("0 - Sair");
                 System.out.print("Escolha: ");
@@ -108,6 +109,18 @@ public class TcpClient {
                         System.out.println("Resposta do servidor: " + resposta);
                     }
 
+                     case "5" -> {
+                        System.out.print("Usuário: ");
+                        String user = scanner.nextLine();
+                        System.out.print("Token: ");
+                        String token = scanner.nextLine();
+
+                        String json = String.format("{\"op\":\"020\",\"user\":\"%s\",\"token\":\"%s\"}", user, token);
+                        out.println(json);
+                        String resposta = in.readLine();
+                        System.out.println("Resposta do servidor: " + resposta);
+
+                   }
 
 
                     default -> System.out.println("Opção inválida. Tente novamente.");

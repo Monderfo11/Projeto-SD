@@ -48,14 +48,20 @@ public class TcpServer extends Thread {
                             Handlers.handleLogin(json, out);
                             break;
                         case "010":
+
                             Handlers.handleCadastro(json, out);
                             break;
+                        case "020":
+                            Handlers.handleRealizarLogout(json, out);
+                            break;
+
                         case "030":
                             Handlers.handleAlterarCadastro(json, out);
                             break;
                         case "040":
                             Handlers.handleApagarCadastro(json, out);
                             break;
+
 
 
 

@@ -20,4 +20,6 @@ public class Usuario {
     public String getToken() {
         return token;
     }
+
+
 }

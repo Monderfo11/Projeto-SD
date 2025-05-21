@@ -160,4 +160,47 @@ public class Handlers {
         BancoUsuarios.removerUsuario(user);
         out.println(gson.toJson(new ApagarCadastroSuccess()));
     }
+
+    public static void handleRealizarLogout(JsonObject json, PrintWriter out) {
+
+        Gson gson = new Gson();
+        String user = json.has("user") ? json.get("user").getAsString() : null;
+
+        String token = json.has("token") ? json.get("token").getAsString() : null;
+
+        if (user == null || token == null || user.isEmpty() || token.isEmpty()) {
+            out.println(gson.toJson(new LogoutFailure("Usuário ou token nulo")));
+            return;
+        }
+        if (!user.matches("[a-zA-Z0-9]{6,16}")) {
+            out.println(gson.toJson(new LogoutFailure("Formato de usuário inválido")));
+            return;
+        }
+        if (!token.matches("[ac][0-9]+")) {
+            out.println(gson.toJson(new LogoutFailure("Formato de token inválido")));
+            return;
+        }
+
+
+        Usuario u = BancoUsuarios.getUsuario(user);
+
+        if (u == null) {
+            out.println(gson.toJson(new LogoutFailure("Usuário não existe")));
+            return;
+
+        }
+
+        if(!u.getToken().equals(token)) {
+            out.println(gson.toJson(new LogoutFailure("Token é de outro usuário")));
+            return;
+
+        }
+
+        BancoUsuarios.atualizarToken(user, "");
+
+        out.println(gson.toJson(new LogoutSuccess()));
+
+
+
+    }
 }
