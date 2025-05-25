@@ -32,6 +32,8 @@ public class TcpClient {
 
                 System.out.println("4 - Apagar Cadastro");
                 System.out.println("5 - Logout");
+                System.out.println("6 - Enviar Mensagem");
+                System.out.println("7 - Ler Mensagem");
 
                 System.out.println("0 - Sair");
                 System.out.print("Escolha: ");
@@ -121,6 +123,35 @@ public class TcpClient {
                         System.out.println("Resposta do servidor: " + resposta);
 
                    }
+
+                    case "6" -> {
+                        System.out.print("Token: ");
+                        String token = scanner.nextLine();
+                        System.out.print("ID (vazio se for nova): ");
+                        String id = scanner.nextLine();
+                        System.out.print("Título: ");
+                        String title = scanner.nextLine();
+                        System.out.print("Assunto: ");
+                        String subject = scanner.nextLine();
+                        System.out.print("Mensagem: ");
+                        String msg = scanner.nextLine();
+
+                        String json = String.format("{\"op\":\"050\",\"token\":\"%s\",\"id\":\"%s\",\"title\":\"%s\",\"subject\":\"%s\",\"msg\":\"%s\"}",
+                                token, id, title, subject, msg);
+                        out.println(json);
+                        String resposta = in.readLine();
+                        System.out.println("Resposta do servidor: " + resposta);
+
+                    }
+
+                    case "7" -> {
+                        System.out.print("ID da mensagem: ");
+                        String id = scanner.nextLine();
+                        String json = String.format("{\"op\":\"060\",\"id\":\"%s\"}", id);
+                        out.println(json);
+                        String resposta = in.readLine();
+                        System.out.println("Resposta do servidor: " + resposta);
+                    }
 
 
                     default -> System.out.println("Opção inválida. Tente novamente.");

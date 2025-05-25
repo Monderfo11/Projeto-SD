@@ -61,6 +61,11 @@ public class TcpServer extends Thread {
                         case "040":
                             Handlers.handleApagarCadastro(json, out);
                             break;
+                        case "050":
+                            Handlers.handleMensagemEnviar(json, out);
+                            break;
+                        case "060":
+                            Handlers.handleMensagemReceber(json, out);
 
 
 

@@ -1,7 +1,8 @@
 package org.example;
 
 import com.google.gson.*;
-import java.io.PrintWriter;
+
+import java.io.*;
 import java.util.Random;
 
 public class Handlers {
@@ -203,4 +204,63 @@ public class Handlers {
 
 
     }
+
+    public static void handleMensagemEnviar(JsonObject json, PrintWriter out) {
+        Gson gson = new Gson();
+
+        String token = json.has("token") ? json.get("token").getAsString() : null;
+        String id = json.has("id") ? json.get("id").getAsString() : null;
+        String title = json.has("title") ? json.get("title").getAsString() : null;
+        String subject = json.has("subject") ? json.get("subject").getAsString() : null;
+        String msg = json.has("msg") ? json.get("msg").getAsString() : null;
+
+        if (token == null || msg == null || title == null || subject == null ||
+                token.isEmpty() || msg.isEmpty() || title.isEmpty() || subject.isEmpty()) {
+            out.println(gson.toJson(new MensagemEnviarFailure("Campos obrigatórios ausentes")));
+            return;
+        }
+
+        if (!token.matches("[ac][0-9]+")) {
+            out.println(gson.toJson(new MensagemEnviarFailure("Formato de token inválido")));
+            return;
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("mensagens.txt", true))) {
+            bw.write((id == null ? "" : id) + ";" + title + ";" + subject + ";" + msg);
+            bw.newLine();
+            out.println(gson.toJson(new MensagemEnviarSuccess()));
+        } catch (IOException e) {
+            out.println(gson.toJson(new MensagemEnviarFailure("Falha ao gravar mensagem")));
+        }
+    }
+    public static void handleMensagemReceber(JsonObject json, PrintWriter out) {
+        Gson gson = new Gson();
+        String id = json.has("id") ? json.get("id").getAsString() : null;
+
+        if (id == null || id.isEmpty()) {
+            out.println(gson.toJson(new MensagemReceberFailure("Id nulo")));
+            return;
+        }
+
+        if (!id.matches("[0-9]+(-[0-9]+)?")) {
+            out.println(gson.toJson(new MensagemReceberFailure("Formato de id inválido")));
+            return;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader("mensagens.txt"))) {
+            String linha;
+            while ((linha = br.readLine()) != null) {
+                String[] partes = linha.split(";");
+                if (partes.length >= 4 && id.equals(partes[0])) {
+                    out.println(gson.toJson(new MensagemReceberSuccess(partes[3])));
+                    return;
+                }
+            }
+            out.println(gson.toJson(new MensagemReceberFailure("Mensagem não encontrada")));
+        } catch (IOException e) {
+            out.println(gson.toJson(new MensagemReceberFailure("Erro ao ler arquivo")));
+        }
+    }
+
+
 }
