@@ -80,6 +80,7 @@ public class Handlers {
 
     public static void handleAlterarCadastro(JsonObject json, PrintWriter out) {
         Gson gson = new Gson();
+
         String user = json.has("user") ? json.get("user").getAsString() : null;
         String pass = json.has("pass") ? json.get("pass").getAsString() : null;
         String newNick = json.has("new_nick") ? json.get("new_nick").getAsString() : null;
@@ -124,9 +125,10 @@ public class Handlers {
         String nickFinal = (newNick == null || newNick.isEmpty()) ? u.getApelido() : newNick;
         String passFinal = (newPass == null || newPass.isEmpty()) ? u.getSenha() : newPass;
 
-        BancoUsuarios.adicionarUsuario(user, nickFinal, passFinal); // Sobrescreve
-        out.println(gson.toJson(new CadastroResponseSuccess()));
+        BancoUsuarios.atualizarUsuario(user, nickFinal, passFinal);
+        out.println(gson.toJson(new AlterarCadastroSuccess()));
     }
+
     public static void handleApagarCadastro(JsonObject json, PrintWriter out) {
         Gson gson = new Gson();
         String user = json.has("user") ? json.get("user").getAsString() : null;

@@ -78,6 +78,16 @@ public class BancoUsuarios {
         reescreverArquivo();
     }
 
+    public static void atualizarUsuario(String user, String novoNick, String novaSenha) {
+        Usuario u = usuarios.get(user);
+        if (u != null) {
+            Usuario atualizado = new Usuario(user, novoNick, novaSenha, u.getToken());
+            usuarios.put(user, atualizado);
+            reescreverArquivo();
+        }
+    }
+
+
 
 
 
