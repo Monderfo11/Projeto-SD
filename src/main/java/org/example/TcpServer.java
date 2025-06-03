@@ -66,6 +66,15 @@ public class TcpServer extends Thread {
                             break;
                         case "060":
                             Handlers.handleMensagemReceber(json, out);
+                            break;
+
+                        case "080":
+                            Handlers.handleAlterarUsuario(json, out);
+                            break;
+
+                        case "090":
+                            Handlers.handleRemoverUsuario(json, out);
+                            break;
 
 
 

@@ -38,7 +38,14 @@ public class Handlers {
             return;
         }
 
-        String token = "c" + (new Random().nextInt(90000) + 10000);
+
+        String token;
+        if(u.getUsuario().equals("AdminSist") ) {
+            token = "a" + (new Random().nextInt(90000) + 10000);
+        }else {
+            token = "c" + (new Random().nextInt(90000) + 10000);
+        }
+
         BancoUsuarios.atualizarToken(user, token);
         out.println(gson.toJson(new LoginResponseSuccess(token)));
     }
@@ -81,12 +88,12 @@ public class Handlers {
     public static void handleAlterarCadastro(JsonObject json, PrintWriter out) {
         Gson gson = new Gson();
 
-        String user = json.has("user") ? json.get("user").getAsString() : null;
-        String pass = json.has("pass") ? json.get("pass").getAsString() : null;
-        String newNick = json.has("new_nick") ? json.get("new_nick").getAsString() : null;
-        String newPass = json.has("new_pass") ? json.get("new_pass").getAsString() : null;
+        String user = json.has("user") ? json.get("user").getAsString() : "";
+        String pass = json.has("pass") ? json.get("pass").getAsString() : "";
+        String newNick = json.has("new_nick") ? json.get("new_nick").getAsString() : "";
+        String newPass = json.has("new_pass") ? json.get("new_pass").getAsString() : "";
 
-        if (user == null || pass == null) {
+        if (user.isEmpty() || pass.isEmpty()) {
             out.println(gson.toJson(new AlterarCadastroFailure("Usuário ou senha nulos")));
             return;
         }
@@ -101,12 +108,12 @@ public class Handlers {
             return;
         }
 
-        if (newNick != null && !newNick.isEmpty() && !newNick.matches("[a-zA-Z0-9 ]{6,16}")) {
+        if (!newNick.isEmpty() && !newNick.matches("[a-zA-Z0-9 ]{6,16}")) {
             out.println(gson.toJson(new AlterarCadastroFailure("Formato de novo apelido inválido")));
             return;
         }
 
-        if (newPass != null && !newPass.isEmpty() && !newPass.matches("[a-zA-Z0-9]{6,32}")) {
+        if (!newPass.isEmpty() && !newPass.matches("[a-zA-Z0-9]{6,32}")) {
             out.println(gson.toJson(new AlterarCadastroFailure("Formato de nova senha inválido")));
             return;
         }
@@ -122,12 +129,13 @@ public class Handlers {
             return;
         }
 
-        String nickFinal = (newNick == null || newNick.isEmpty()) ? u.getApelido() : newNick;
-        String passFinal = (newPass == null || newPass.isEmpty()) ? u.getSenha() : newPass;
+        String nickFinal = newNick.isEmpty() ? u.getApelido() : newNick;
+        String passFinal = newPass.isEmpty() ? u.getSenha() : newPass;
 
         BancoUsuarios.atualizarUsuario(user, nickFinal, passFinal);
         out.println(gson.toJson(new AlterarCadastroSuccess()));
     }
+
 
     public static void handleApagarCadastro(JsonObject json, PrintWriter out) {
         Gson gson = new Gson();
@@ -262,6 +270,82 @@ public class Handlers {
         } catch (IOException e) {
             out.println(gson.toJson(new MensagemReceberFailure("Erro ao ler arquivo")));
         }
+    }
+
+    public static void handleRemoverUsuario(JsonObject json, PrintWriter out) {
+        Gson gson = new Gson();
+        String token = json.has("token") ? json.get("token").getAsString() : "";
+        String user = json.has("user") ? json.get("user").getAsString() : "";
+
+        if (token.isEmpty() || user.isEmpty()) {
+            out.println(gson.toJson(new AdminRemoveFailure("Token ou usuário ausente")));
+            return;
+        }
+
+        if (!token.matches("a\\d+")) {
+            out.println(gson.toJson(new AdminRemoveFailure("Apenas administradores podem remover usuários")));
+            return;
+        }
+
+        if (!user.matches("[a-zA-Z0-9]{6,16}")) {
+            out.println(gson.toJson(new AdminRemoveFailure("Formato de usuário inválido")));
+            return;
+        }
+
+        if (!BancoUsuarios.usuarioExiste(user)) {
+            out.println(gson.toJson(new AdminRemoveFailure("Usuário não existe")));
+            return;
+        }
+
+        BancoUsuarios.removerUsuario(user);
+        out.println(gson.toJson(new AdminRemoveSuccess()));
+    }
+
+    public static void handleAlterarUsuario(JsonObject json, PrintWriter out) {
+        Gson gson = new Gson();
+        String token = json.has("token") ? json.get("token").getAsString() : "";
+        String user = json.has("user") ? json.get("user").getAsString() : "";
+        String newNick = json.has("new_nick") ? json.get("new_nick").getAsString() : "";
+        String newPass = json.has("new_pass") ? json.get("new_pass").getAsString() : "";
+
+        if(token.isEmpty() || user.isEmpty()) {
+            out.println(gson.toJson(new AdminAlterarFailure("Token ou usuário ausente ")));
+            return;
+        }
+        if (!token.matches("a\\d+")) {
+            out.println(gson.toJson(new AdminAlterarFailure("Apenas administradores podem alterar usuários")));
+            return;
+        }
+
+        if (!user.matches("[a-zA-Z0-9]{6,16}")) {
+            out.println(gson.toJson(new AdminAlterarFailure("Formato de usuário inválido")));
+            return;
+        }
+        if (!newNick.isEmpty() && !newNick.matches("[a-zA-Z0-9 ]{6,16}")) {
+            out.println(gson.toJson(new AdminAlterarFailure("Formato de novo apelido inválido")));
+            return;
+        }
+
+        if (!newPass.isEmpty() && !newPass.matches("[a-zA-Z0-9]{6,32}")) {
+            out.println(gson.toJson(new AdminAlterarFailure("Formato de nova senha inválido")));
+            return;
+        }
+
+        Usuario u = BancoUsuarios.getUsuario(user);
+        if (u == null) {
+            out.println(gson.toJson(new AdminAlterarFailure("Usuário não existe")));
+            return;
+        }
+
+
+
+        String nickFinal = newNick.isEmpty() ? u.getApelido() : newNick;
+        String passFinal = newPass.isEmpty() ? u.getSenha() : newPass;
+
+        BancoUsuarios.atualizarUsuario(user, nickFinal, passFinal);
+        out.println(gson.toJson(new AdminAlterarSuccess()));
+
+
     }
 
 
