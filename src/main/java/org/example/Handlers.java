@@ -348,5 +348,32 @@ public class Handlers {
 
     }
 
+    public static void handleBuscarCadastro(JsonObject json, PrintWriter out) {
+        Gson gson = new Gson();
+
+        String user = json.has("user") ? json.get("user").getAsString() : "";
+        String token = json.has("token") ? json.get("token").getAsString() : "";
+
+        if (user.isEmpty() || token.isEmpty()) {
+            out.println(gson.toJson(new LoginResponseFailure("Usuário ou token nulo")));
+            return;
+        }
+
+        Usuario u = BancoUsuarios.getUsuario(user);
+
+        if (u == null) {
+            out.println(gson.toJson(new LoginResponseFailure("Usuário não existe")));
+            return;
+        }
+
+        if (!token.equals(u.getToken())) {
+            out.println(gson.toJson(new LoginResponseFailure("Token inválido")));
+            return;
+        }
+
+        out.println(gson.toJson(new BuscarCadastroResponse(u.getApelido())));
+    }
+
+
 
 }
