@@ -355,23 +355,24 @@ public class Handlers {
         String token = json.has("token") ? json.get("token").getAsString() : "";
 
         if (user.isEmpty() || token.isEmpty()) {
-            out.println(gson.toJson(new LoginResponseFailure("Usuário ou token nulo")));
+            out.println(gson.toJson(new BuscarCadastroResponseFailure("Usuário ou token nulo")));
             return;
         }
 
         Usuario u = BancoUsuarios.getUsuario(user);
 
         if (u == null) {
-            out.println(gson.toJson(new LoginResponseFailure("Usuário não existe")));
+            out.println(gson.toJson(new BuscarCadastroResponseFailure("Usuário não existe")));
             return;
         }
 
         if (!token.equals(u.getToken())) {
-            out.println(gson.toJson(new LoginResponseFailure("Token inválido")));
+            out.println(gson.toJson(new BuscarCadastroResponseFailure("Token inválido")));
             return;
         }
 
-        out.println(gson.toJson(new BuscarCadastroResponse(u.getApelido())));
+        out.println(gson.toJson(new BuscarCadastroResponseSuccess(u.getUsuario(), u.getApelido())));
+
     }
 
 

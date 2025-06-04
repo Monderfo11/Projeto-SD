@@ -52,7 +52,7 @@ public class TcpServer extends Thread {
                             Handlers.handleCadastro(json, out);
                             break;
                         
-                        case "013":
+                        case "005":
                             Handlers.handleBuscarCadastro(json, out);
                             break;
                         case "020":
