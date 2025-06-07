@@ -2,35 +2,33 @@ package org.example;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import com.google.gson.*;
 
 public class TcpServer extends Thread {
-    protected Socket clientSocket;
+    private static Map<Socket, String> conexoes = new HashMap<>();
+    private Socket clientSocket;
 
     public static void main(String[] args) throws IOException {
         System.out.print("Qual porta o servidor deve usar? ");
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int porta = Integer.parseInt(br.readLine());
 
-        System.out.println("Servidor carregado na porta " + porta);
-        System.out.println("Aguardando conexao....\n ");
-
         ServerSocket serverSocket = new ServerSocket(porta);
+        System.out.println("Servidor na porta " + porta);
+
         while (true) {
             Socket socket = serverSocket.accept();
-            new TcpServer(socket);
-            System.out.println("Conexao recebida.\n");
+            new TcpServer(socket).start();
         }
     }
 
-    private TcpServer(Socket clientSoc) {
-        this.clientSocket = clientSoc;
-        start();
+    public TcpServer(Socket socket) {
+        this.clientSocket = socket;
     }
 
     @Override
     public void run() {
-        System.out.println("Nova thread de comunicacao iniciada.\n");
         Gson gson = new Gson();
 
         try (
@@ -43,46 +41,23 @@ public class TcpServer extends Thread {
                     JsonObject json = JsonParser.parseString(input).getAsJsonObject();
                     String op = json.get("op").getAsString();
 
+                    // Captura login e salva qual usuário usou o socket
+                    if (op.equals("000")) {
+                        String user = json.get("user").getAsString();
+                        conexoes.put(clientSocket, user);
+                    }
+
                     switch (op) {
-                        case "000":
-                            Handlers.handleLogin(json, out);
-                            break;
-                        case "010":
-
-                            Handlers.handleCadastro(json, out);
-                            break;
-                        
-                        case "005":
-                            Handlers.handleBuscarCadastro(json, out);
-                            break;
-                        case "020":
-                            Handlers.handleRealizarLogout(json, out);
-                            break;
-
-                        case "030":
-                            Handlers.handleAlterarCadastro(json, out);
-                            break;
-                        case "040":
-                            Handlers.handleApagarCadastro(json, out);
-                            break;
-                        case "050":
-                            Handlers.handleMensagemEnviar(json, out);
-                            break;
-                        case "060":
-                            Handlers.handleMensagemReceber(json, out);
-                            break;
-
-                        case "080":
-                            Handlers.handleAlterarUsuario(json, out);
-                            break;
-
-                        case "090":
-                            Handlers.handleRemoverUsuario(json, out);
-                            break;
-
-
-
-
+                        case "000": Handlers.handleLogin(json, out); break;
+                        case "010": Handlers.handleCadastro(json, out); break;
+                        case "020": Handlers.handleRealizarLogout(json, out); break;
+                        case "030": Handlers.handleAlterarCadastro(json, out); break;
+                        case "040": Handlers.handleApagarCadastro(json, out); break;
+                        case "050": Handlers.handleMensagemEnviar(json, out); break;
+                        case "060": Handlers.handleMensagemReceber(json, out); break;
+                        case "080": Handlers.handleAlterarUsuario(json, out); break;
+                        case "090": Handlers.handleRemoverUsuario(json, out); break;
+                        case "005": Handlers.handleBuscarCadastro(json, out); break;
                         default:
                             out.println(gson.toJson(new LoginResponseFailure("Operação desconhecida")));
                     }
@@ -91,7 +66,14 @@ public class TcpServer extends Thread {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro na comunicacao com o cliente.");
+            System.err.println("Erro na comunicação com o cliente.");
+        } finally {
+            // Quando o cliente se desconecta
+            String usuario = conexoes.remove(clientSocket);
+            if (usuario != null) {
+                BancoUsuarios.atualizarToken(usuario, "");
+                System.out.println("Token removido do usuário desconectado: " + usuario);
+            }
         }
     }
 }
