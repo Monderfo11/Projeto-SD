@@ -2,7 +2,7 @@ package org.example;
 
 public class BuscarCadastroResponse {
 
-    private String op = "013";
+    private String op = "005";
     private String nick;
 
     public BuscarCadastroResponse(String nick) {
