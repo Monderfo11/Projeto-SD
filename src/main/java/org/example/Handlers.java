@@ -92,9 +92,10 @@ public class Handlers {
         String pass = json.has("pass") ? json.get("pass").getAsString() : "";
         String newNick = json.has("new_nick") ? json.get("new_nick").getAsString() : "";
         String newPass = json.has("new_pass") ? json.get("new_pass").getAsString() : "";
+        String token = json.has("token") ? json.get("token").getAsString() : "";
 
-        if (user.isEmpty() || pass.isEmpty()) {
-            out.println(gson.toJson(new AlterarCadastroFailure("Usuário ou senha nulos")));
+        if (user.isEmpty() || pass.isEmpty() || token.isEmpty()) {
+            out.println(gson.toJson(new AlterarCadastroFailure("Usuário, senha ou token nulos")));
             return;
         }
 
@@ -105,6 +106,11 @@ public class Handlers {
 
         if (!pass.matches("[a-zA-Z0-9]{6,32}")) {
             out.println(gson.toJson(new AlterarCadastroFailure("Formato de senha inválido")));
+            return;
+        }
+
+        if (!token.matches("[ac][0-9]+")) {
+            out.println(gson.toJson(new AlterarCadastroFailure("Formato de token inválido")));
             return;
         }
 
@@ -129,6 +135,11 @@ public class Handlers {
             return;
         }
 
+        if (!u.getToken().equals(token)) {
+            out.println(gson.toJson(new AlterarCadastroFailure("Token inválido")));
+            return;
+        }
+
         String nickFinal = newNick.isEmpty() ? u.getApelido() : newNick;
         String passFinal = newPass.isEmpty() ? u.getSenha() : newPass;
 
@@ -137,13 +148,15 @@ public class Handlers {
     }
 
 
+
     public static void handleApagarCadastro(JsonObject json, PrintWriter out) {
         Gson gson = new Gson();
         String user = json.has("user") ? json.get("user").getAsString() : null;
+        String token = json.has("token") ? json.get("token").getAsString() : null;
         String pass = json.has("pass") ? json.get("pass").getAsString() : null;
 
-        if (user == null || pass == null || user.isEmpty() || pass.isEmpty()) {
-            out.println(gson.toJson(new ApagarCadastroFailure("Usuário ou senha nulos")));
+        if (user == null || pass == null || token == null || user.isEmpty() || pass.isEmpty() || token.isEmpty()) {
+            out.println(gson.toJson(new ApagarCadastroFailure("Usuário, senha ou token nulos")));
             return;
         }
 
@@ -154,6 +167,11 @@ public class Handlers {
 
         if (!pass.matches("[a-zA-Z0-9]{6,32}")) {
             out.println(gson.toJson(new ApagarCadastroFailure("Formato de senha inválido")));
+            return;
+        }
+
+        if (!token.matches("[ac][0-9]+")) {
+            out.println(gson.toJson(new ApagarCadastroFailure("Formato de token inválido")));
             return;
         }
 
@@ -168,9 +186,15 @@ public class Handlers {
             return;
         }
 
+        if (!u.getToken().equals(token)) {
+            out.println(gson.toJson(new ApagarCadastroFailure("Token inválido")));
+            return;
+        }
+
         BancoUsuarios.removerUsuario(user);
         out.println(gson.toJson(new ApagarCadastroSuccess()));
     }
+
 
     public static void handleRealizarLogout(JsonObject json, PrintWriter out) {
 
