@@ -35,6 +35,8 @@ public class TcpClient {
                     case 4: alterarCadastro(req, scanner); break;
                     case 5: apagarCadastro(req, scanner); break;
                     case 6: buscarCadastro(req, scanner); break;
+                    case 7: alterarCadastroAdmin(req, scanner); break;
+                    case 8: removerCadastroAdmin(req, scanner); break;
                     case 0: System.out.println("Encerrando..."); return;
                     default: System.out.println("Opção inválida."); continue;
                 }
@@ -68,6 +70,8 @@ public class TcpClient {
         System.out.println("4 - Alterar Cadastro");
         System.out.println("5 - Apagar Cadastro");
         System.out.println("6 - Buscar Cadastro");
+        System.out.println("7 - Alterar Cadastro - ADMIN");
+        System.out.println("8 - Remover Cadastro - ADMIN");
         System.out.println("0 - Sair");
         System.out.print("Escolha: ");
     }
@@ -128,5 +132,26 @@ public class TcpClient {
         req.addProperty("user", scanner.nextLine());
         System.out.print("Token: ");
         req.addProperty("token", scanner.nextLine());
+    }
+
+    private static void alterarCadastroAdmin(JsonObject req, Scanner scanner) {
+        req.addProperty("op", "080");
+        System.out.print("Token: ");
+        req.addProperty("token", scanner.nextLine());
+        System.out.print("Usuário: ");
+        req.addProperty("user", scanner.nextLine());
+        System.out.print("Novo apelido (ou vazio): ");
+        req.addProperty("new_nick", scanner.nextLine());
+        System.out.print("Nova senha (ou vazio): ");
+        req.addProperty("new_pass", scanner.nextLine());
+
+    }
+
+    private static void removerCadastroAdmin(JsonObject req, Scanner scanner) {
+        req.addProperty("op", "090");
+        System.out.print("Token: ");
+        req.addProperty("token", scanner.nextLine());
+        System.out.print("Usuário: ");
+        req.addProperty("user", scanner.nextLine());
     }
 }
