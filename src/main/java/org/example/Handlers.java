@@ -3,6 +3,7 @@ package org.example;
 import com.google.gson.*;
 
 import java.io.*;
+import java.util.List;
 import java.util.Random;
 
 public class Handlers {
@@ -398,6 +399,26 @@ public class Handlers {
         out.println(gson.toJson(new BuscarCadastroResponseSuccess(u.getUsuario(), u.getApelido())));
 
     }
+    public static void handleBuscarLogados(JsonObject json, PrintWriter out) {
+        Gson gson = new Gson();
+        String token = json.has("token") ? json.get("token").getAsString() : "";
+
+        if (token.isEmpty() || !token.matches("a\\d+")) {
+            out.println(gson.toJson(new BuscarUsuariosLogadosFailure("Token de administrador inválido")));
+            return;
+        }
+
+        boolean tokenValido = BancoUsuarios.getUsuarioPorToken(token) != null;
+        if (!tokenValido) {
+            out.println(gson.toJson(new BuscarUsuariosLogadosFailure("Token não encontrado")));
+            return;
+        }
+
+        List<String> usuariosLogados = BancoUsuarios.listarUsuariosLogados();
+        out.println(gson.toJson(new BuscarUsuariosLogadosSuccess(usuariosLogados)));
+    }
+
+
 
 
 

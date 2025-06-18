@@ -87,8 +87,24 @@ public class BancoUsuarios {
         }
     }
 
+    public static List<String> listarUsuariosLogados() {
+        List<String> logados = new ArrayList<>();
+        for (Usuario u : usuarios.values()) {
+            if (u.getToken() != null && !u.getToken().isEmpty()) {
+                logados.add(u.getUsuario());
+            }
+        }
+        return logados;
+    }
 
 
-
+    public static Usuario getUsuarioPorToken(String token) {
+        for (Usuario u : usuarios.values()) {
+            if (token.equals(u.getToken())) {
+                return u;
+            }
+        }
+        return null;
+    }
 
 }
