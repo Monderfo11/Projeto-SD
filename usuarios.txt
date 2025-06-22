@@ -1,2 +1,1 @@
-userteste;userteste;userteste;c91822
-admin123;admin123;admin123;a69987
+admin123;admin123;admin123;

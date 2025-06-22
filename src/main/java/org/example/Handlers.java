@@ -117,6 +117,12 @@ public class Handlers {
             return;
         }
 
+        if (user.equals("admin123")) {
+            out.println(gson.toJson(new AlterarCadastroFailure("A conta ADMIN não pode ser alterada")));
+            return;
+        }
+
+
         if (!newNick.isEmpty() && !newNick.matches("[a-zA-Z0-9 ]{6,16}")) {
             out.println(gson.toJson(new AlterarCadastroFailure("Formato de novo apelido inválido")));
             return;
@@ -167,6 +173,11 @@ public class Handlers {
             out.println(gson.toJson(new ApagarCadastroFailure("Formato de usuário inválido")));
             return;
         }
+        if (user.equals("admin123")) {
+            out.println(gson.toJson(new ApagarCadastroFailure("A conta ADMIN não pode ser removida")));
+            return;
+        }
+
 
         if (!pass.matches("[a-zA-Z0-9]{6,32}")) {
             out.println(gson.toJson(new ApagarCadastroFailure("Formato de senha inválido")));
@@ -304,6 +315,10 @@ public class Handlers {
         String token = json.has("token") ? json.get("token").getAsString() : "";
         String user = json.has("user") ? json.get("user").getAsString() : "";
 
+        if (user.equals("admin123")) {
+            out.println(gson.toJson(new AdminRemoveFailure("A conta ADMIN não pode ser removida")));
+            return;
+        }
         if (token.isEmpty() || user.isEmpty()) {
             out.println(gson.toJson(new AdminRemoveFailure("Token ou usuário ausente")));
             return;
@@ -323,6 +338,8 @@ public class Handlers {
             out.println(gson.toJson(new AdminRemoveFailure("Usuário não existe")));
             return;
         }
+
+
 
         BancoUsuarios.removerUsuario(user);
         out.println(gson.toJson(new AdminRemoveSuccess()));
@@ -357,6 +374,11 @@ public class Handlers {
             out.println(gson.toJson(new AdminAlterarFailure("Formato de nova senha inválido")));
             return;
         }
+        if (user.equals("admin123")) {
+            out.println(gson.toJson(new AdminAlterarFailure("A conta ADMIN não pode ser alterada")));
+            return;
+        }
+
 
         Usuario u = BancoUsuarios.getUsuario(user);
         if (u == null) {
