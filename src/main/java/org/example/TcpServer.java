@@ -96,9 +96,10 @@ public class TcpServer extends Thread {
                             System.out.println(" Usuário " + user + " buscou os dados do próprio cadastro.");
                             break;
 
-                        case "095":
-                            Handlers.handleBuscarLogados(json, out);
-                            System.out.println(" Admin buscou usuários logados.");
+                        case "110":
+                            Handlers.handleListarTodosUsuarios(json, out);
+
+                            System.out.println(" Admin listou todos os usuários.");
 
                             break;
 

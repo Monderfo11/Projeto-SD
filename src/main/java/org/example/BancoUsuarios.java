@@ -98,13 +98,9 @@ public class BancoUsuarios {
     }
 
 
-    public static Usuario getUsuarioPorToken(String token) {
-        for (Usuario u : usuarios.values()) {
-            if (token.equals(u.getToken())) {
-                return u;
-            }
-        }
-        return null;
+    public static Collection<Usuario> getTodosUsuarios() {
+        return usuarios.values();
     }
+
 
 }

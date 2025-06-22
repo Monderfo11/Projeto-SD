@@ -3,6 +3,8 @@ package org.example;
 import com.google.gson.*;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -41,7 +43,7 @@ public class Handlers {
 
 
         String token;
-        if(u.getUsuario().equals("AdminSist") ) {
+        if(u.getUsuario().equals("admin123") ) {
             token = "a" + (new Random().nextInt(90000) + 10000);
         }else {
             token = "c" + (new Random().nextInt(90000) + 10000);
@@ -399,24 +401,31 @@ public class Handlers {
         out.println(gson.toJson(new BuscarCadastroResponseSuccess(u.getUsuario(), u.getApelido())));
 
     }
-    public static void handleBuscarLogados(JsonObject json, PrintWriter out) {
+    public static void handleListarTodosUsuarios(JsonObject json, PrintWriter out) {
         Gson gson = new Gson();
+
         String token = json.has("token") ? json.get("token").getAsString() : "";
 
-        if (token.isEmpty() || !token.matches("a\\d+")) {
-            out.println(gson.toJson(new BuscarUsuariosLogadosFailure("Token de administrador inválido")));
+        if (token.isEmpty()) {
+            out.println(gson.toJson(new BuscarTodosFailure("Token ausente")));
             return;
         }
 
-        boolean tokenValido = BancoUsuarios.getUsuarioPorToken(token) != null;
-        if (!tokenValido) {
-            out.println(gson.toJson(new BuscarUsuariosLogadosFailure("Token não encontrado")));
+        if (!token.matches("a\\d+")) {
+            out.println(gson.toJson(new BuscarTodosFailure("Apenas administradores podem listar usuários")));
             return;
         }
 
-        List<String> usuariosLogados = BancoUsuarios.listarUsuariosLogados();
-        out.println(gson.toJson(new BuscarUsuariosLogadosSuccess(usuariosLogados)));
+        Collection<Usuario> todos = BancoUsuarios.getTodosUsuarios();
+
+        List<String> lista = new ArrayList<>();
+        for (Usuario u : todos) {
+            lista.add(u.getUsuario());
+        }
+
+        out.println(gson.toJson(new BuscarTodosSucess(lista)));
     }
+
 
 
 

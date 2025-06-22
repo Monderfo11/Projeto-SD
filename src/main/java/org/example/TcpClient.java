@@ -37,7 +37,7 @@ public class TcpClient {
                     case 6: buscarCadastro(req, scanner); break;
                     case 7: alterarCadastroAdmin(req, scanner); break;
                     case 8: removerCadastroAdmin(req, scanner); break;
-                    case 9: buscarLogadosAdmin(req, scanner); break;
+                    case 9: buscarCadastradosAdmin(req, scanner); break;
                     case 0: System.out.println("Encerrando..."); return;
                     default: System.out.println("Opção inválida."); continue;
                 }
@@ -157,11 +157,12 @@ public class TcpClient {
         req.addProperty("user", scanner.nextLine());
     }
 
-    private static void buscarLogadosAdmin(JsonObject req, Scanner scanner) {
-        req.addProperty("op", "095");
-        System.out.print("Token: ");
+    private static void buscarCadastradosAdmin(JsonObject req, Scanner scanner) {
+        req.addProperty("op", "110");
+        System.out.print("Token (ADMIN): ");
         req.addProperty("token", scanner.nextLine());
-        System.out.print("Usuário: ");
-        req.addProperty("user", scanner.nextLine());
     }
+
+
+
 }
