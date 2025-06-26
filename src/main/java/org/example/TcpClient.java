@@ -45,7 +45,19 @@ public class TcpClient {
                 out.println(req.toString());
 
                 String resposta = in.readLine();
-                System.out.println("Resposta: " + resposta);
+                try {
+                    JsonObject respJson = JsonParser.parseString(resposta).getAsJsonObject();
+
+                    if (!respJson.has("op")) {
+                        System.out.println("Servidor → Cliente: {\"op\":\"999\",\"msg\":\"Resposta sem campo 'op'\"}");
+                    } else {
+                        System.out.println("Servidor → Cliente: " + respJson);
+                    }
+
+                } catch (JsonParseException | IllegalStateException e) {
+                    System.out.println("Servidor → Cliente: {\"op\":\"999\",\"msg\":\"Resposta inválida do servidor\"}");
+                }
+
 
                 // Captura token após login válido
                 if (req.get("op").getAsString().equals("000")) {

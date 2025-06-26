@@ -69,7 +69,7 @@ public class Handlers {
             return;
         }
 
-        if (!nick.matches("[a-zA-Z0-9 ]{6,16}")) {
+        if (!nick.matches("[a-zA-Z0-9]{6,16}")) {
             out.println(gson.toJson(new CadastroResponseFailure("Formato de apelido inválido")));
             return;
         }
@@ -85,7 +85,7 @@ public class Handlers {
         }
 
         BancoUsuarios.adicionarUsuario(user, nick, pass);
-        out.println(gson.toJson(new CadastroResponseSuccess()));
+        out.println(gson.toJson(new CadastroResponseSuccess("Cadastro realizado com sucesso!")));
     }
 
     public static void handleAlterarCadastro(JsonObject json, PrintWriter out) {
@@ -153,7 +153,7 @@ public class Handlers {
         String passFinal = newPass.isEmpty() ? u.getSenha() : newPass;
 
         BancoUsuarios.atualizarUsuario(user, nickFinal, passFinal);
-        out.println(gson.toJson(new AlterarCadastroSuccess()));
+        out.println(gson.toJson(new AlterarCadastroSuccess("Cadastro alterado com sucesso!")));
     }
 
 
@@ -206,7 +206,7 @@ public class Handlers {
         }
 
         BancoUsuarios.removerUsuario(user);
-        out.println(gson.toJson(new ApagarCadastroSuccess()));
+        out.println(gson.toJson(new ApagarCadastroSuccess("Cadastro apagado com sucesso!")));
     }
 
 
@@ -247,7 +247,7 @@ public class Handlers {
 
         BancoUsuarios.atualizarToken(user, "");
 
-        out.println(gson.toJson(new LogoutSuccess()));
+        out.println(gson.toJson(new LogoutSuccess("Logout realizado com sucesso!")));
 
 
 
@@ -342,7 +342,7 @@ public class Handlers {
 
 
         BancoUsuarios.removerUsuario(user);
-        out.println(gson.toJson(new AdminRemoveSuccess()));
+        out.println(gson.toJson(new AdminRemoveSuccess("Usuário removido com sucesso!")));
     }
 
     public static void handleAlterarUsuario(JsonObject json, PrintWriter out) {
@@ -392,7 +392,7 @@ public class Handlers {
         String passFinal = newPass.isEmpty() ? u.getSenha() : newPass;
 
         BancoUsuarios.atualizarUsuario(user, nickFinal, passFinal);
-        out.println(gson.toJson(new AdminAlterarSuccess()));
+        out.println(gson.toJson(new AdminAlterarSuccess("Usuário alterado com sucesso!")));
 
 
     }

@@ -37,91 +37,94 @@ public class TcpServer extends Thread {
         ) {
             String input;
             while ((input = in.readLine()) != null) {
-                System.out.println("Cliente → Servidor: " + input); // Log bruto da mensagem recebida
+                System.out.println("Cliente → Servidor: " + input);
 
                 try {
                     JsonObject json = JsonParser.parseString(input).getAsJsonObject();
                     String op = json.get("op").getAsString();
                     String user = json.has("user") ? json.get("user").getAsString() : "(desconhecido)";
 
+                    // Wrapper para interceptar saída do handler
+                    StringWriter sw = new StringWriter();
+                    PrintWriter tempOut = new PrintWriter(sw, true);
+
                     switch (op) {
                         case "000":
-                            Handlers.handleLogin(json, out);
-                            System.out.println("Usuário " + user + " fez login.");
+                            Handlers.handleLogin(json, tempOut);
+
                             conexoes.put(clientSocket, user);
                             break;
-
                         case "010":
-                            Handlers.handleCadastro(json, out);
-                            System.out.println("Usuário " + user + " se cadastrou.");
-                            break;
+                            Handlers.handleCadastro(json, tempOut);
 
+                            break;
                         case "020":
-                            Handlers.handleRealizarLogout(json, out);
-                            System.out.println("⬅Usuário " + user + " fez logout.");
-                            break;
+                            Handlers.handleRealizarLogout(json, tempOut);
 
+                            break;
                         case "030":
-                            Handlers.handleAlterarCadastro(json, out);
-                            System.out.println(" Usuário " + user + " alterou o cadastro.");
-                            break;
+                            Handlers.handleAlterarCadastro(json, tempOut);
 
+                            break;
                         case "040":
-                            Handlers.handleApagarCadastro(json, out);
-                            System.out.println(" Usuário " + user + " excluiu a conta.");
-                            break;
+                            Handlers.handleApagarCadastro(json, tempOut);
 
+                            break;
                         case "050":
-                            Handlers.handleMensagemEnviar(json, out);
-                            System.out.println(" Usuário " + user + " enviou uma mensagem.");
-                            break;
+                            Handlers.handleMensagemEnviar(json, tempOut);
 
+                            break;
                         case "060":
-                            Handlers.handleMensagemReceber(json, out);
-                            System.out.println(" Usuário " + user + " leu uma mensagem.");
-                            break;
+                            Handlers.handleMensagemReceber(json, tempOut);
 
+                            break;
                         case "080":
-                            Handlers.handleAlterarUsuario(json, out);
-                            System.out.println(" Admin alterou o usuário " + user + ".");
-                            break;
+                            Handlers.handleAlterarUsuario(json, tempOut);
 
+                            break;
                         case "090":
-                            Handlers.handleRemoverUsuario(json, out);
-                            System.out.println(" Admin removeu o usuário " + user + ".");
-                            break;
+                            Handlers.handleRemoverUsuario(json, tempOut);
 
+                            break;
                         case "005":
-                            Handlers.handleBuscarCadastro(json, out);
-                            System.out.println(" Usuário " + user + " buscou os dados do próprio cadastro.");
-                            break;
+                            Handlers.handleBuscarCadastro(json, tempOut);
 
+                            break;
                         case "110":
-                            Handlers.handleListarTodosUsuarios(json, out);
-
-                            System.out.println(" Admin listou todos os usuários.");
+                            Handlers.handleListarTodosUsuarios(json, tempOut);
 
                             break;
-
-
                         default:
-                            String erro = gson.toJson(new LoginResponseFailure("Operação desconhecida"));
-                            System.out.println(" Operação desconhecida recebida.");
-                            out.println(erro);
+                            JsonObject erro = new JsonObject();
+                            erro.addProperty("op", "998");
+                            erro.addProperty("msg", "Código de operação inválido");
+                            System.out.println(" Operação inválida recebida: " + op);
+                            out.println(erro.toString());
+
                     }
+
+                    // Envia resposta ao cliente
+                    String resposta = sw.toString().trim();
+                    out.println(resposta);
+                    System.out.println("Servidor → Cliente: " + resposta);
+
                 } catch (JsonSyntaxException | IllegalStateException e) {
-                    String erro = gson.toJson(new LoginResponseFailure("JSON inválido ou mal formatado"));
-                    System.out.println(" JSON mal formatado recebido.");
-                    out.println(erro);
+                    JsonObject erro = new JsonObject();
+                    erro.addProperty("op", "999");
+                    erro.addProperty("msg", "JSON inválido ou mal formatado");
+
+                    String resposta = erro.toString();
+                    out.println(resposta);
+                    System.out.println(" Servidor → Cliente: " + resposta);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro na comunicação com o cliente.");
+            System.err.println(" Erro na comunicação com o cliente.");
         } finally {
             String usuario = conexoes.remove(clientSocket);
             if (usuario != null) {
                 BancoUsuarios.atualizarToken(usuario, "");
-                System.out.println(" Token removido do usuário desconectado: " + usuario);
+                System.out.println("Token removido do usuário desconectado: " + usuario);
             }
         }
     }
